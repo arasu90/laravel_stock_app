@@ -1,0 +1,63 @@
+server {
+    listen       80;
+    #listen ;
+    server_name  localhost;
+    index   index.php;
+    root        /var/www/html;
+    #root  ;
+
+    underscores_in_headers on;
+
+    gzip on;
+    gzip_vary on;
+    gzip_min_length 1024;
+    gzip_proxied expired no-cache no-store private auth;
+    gzip_types text/plain text/css application/json application/x-javascript text/xml application/xml application/xml+rss text/javascript application/vnd.ms-fontobject application/x-font-ttf font/opentype image/svg+xml image/x-icon;
+    gzip_disable "msie6";
+
+    #charset koi8-r;
+    #access_log  /var/log/nginx/host.access.log  main;
+    #error_log  /var/log/nginx/host.error.log debug;
+    charset UTF-8;
+
+    location / {
+        try_files   $uri $uri/ /index.php?$query_string;
+    }
+
+    error_page  404              /404.html;
+
+    #
+    location ~ \.php$ {
+        fastcgi_pass unix:/run/php/php8.2-fpm.sock;
+        fastcgi_split_path_info  ^(.+\.php)(/.*)$;
+        fastcgi_index  index.php;
+        fastcgi_param  SCRIPT_FILENAME  $document_root$fastcgi_script_name;
+        #fastcgi_param  SCRIPT_FILENAME  /enterprise-oss/html/$fastcgi_script_name;
+        fastcgi_param  PATH_INFO $fastcgi_path_info;
+        include        fastcgi_params;
+
+        #custom settings
+        fastcgi_buffer_size 128k;
+        fastcgi_buffers 4 256k;
+        fastcgi_busy_buffers_size 256k;
+        fastcgi_temp_file_write_size 256k;
+
+
+
+        fastcgi_connect_timeout 600s;
+        fastcgi_send_timeout 600s;
+        fastcgi_read_timeout 600s;
+    }
+    location ~ \.css {
+       add_header  Content-Type    text/css;
+    }
+    location ~ \.js {
+       add_header  Content-Type    application/x-javascript;
+    }
+    # deny access to .htaccess files, if Apache's document root
+    # concurs with nginx's one
+    #
+    #location ~ /\.ht {
+    #    deny  all;
+    #}
+}
